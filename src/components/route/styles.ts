@@ -16,10 +16,14 @@ const styles = StyleSheet.create({
 		top: Measurement.Components.Header.Height
 	},
 	searchWrapper: {
-		backgroundColor: "pink",
+		alignItems: "center",
+		backgroundColor: Color.Light,
+		elevation: 7,
 		height: Size["8x"],
+		justifyContent: "center",
 		left: 0,
 		opacity: 0,
+		padding: Measurement.Padding,
 		position: "absolute",
 		top: Measurement.Components.Header.Height,
 		width: "100%"

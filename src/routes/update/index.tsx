@@ -1,22 +1,4 @@
-import {
-	faBox,
-	faCheck,
-	faComments,
-	faEuroSign,
-	faFlask,
-	faGlassCheers,
-	faGlassWhiskey,
-	faGlobeAmericas,
-	faImage,
-	faIndustry,
-	faLongArrowAltDown,
-	faLongArrowAltUp,
-	faPalette,
-	faPencilAlt,
-	faPercentage,
-	faSmile,
-	faWineBottle
-} from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCity, faComments, faImage, faPencilAlt, faSmile, faTags } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { Keyboard, ToastAndroid } from "react-native";
 import { connect } from "react-redux";
@@ -24,9 +6,7 @@ import { RouteComponentProps } from "react-router";
 import { Form, Route } from "../../components";
 import { updateRecord } from "../../redux/actions/collection";
 import { IDataCollection, IDataOptions } from "../../types/data";
-import { IReduxCollection, IReduxDispatch, IReduxStore } from "../../types/redux";
-import assets from "../../utils/assets";
-import country from "../../utils/country";
+import { IReduxDispatch, IReduxStore } from "../../types/redux";
 import strings from "../../utils/strings";
 
 interface IUpdateState {
@@ -37,7 +17,6 @@ interface IUpdateState {
 
 interface IUpdateProps extends IReduxDispatch {
 	options: IDataOptions;
-	predefined: IReduxCollection["predefined"];
 	record: IDataCollection;
 }
 
@@ -65,7 +44,7 @@ class Update extends Route.Content<IUpdateProps, IUpdateState, IUpdateParams> {
 	 */
 	public render(): JSX.Element {
 		// rozlozeni props
-		const { options, predefined, record } = this.props;
+		const { options, record } = this.props;
 		const { changed, working } = this.state;
 		// sestaveni a vraceni
 		return (
@@ -90,10 +69,20 @@ class Update extends Route.Content<IUpdateProps, IUpdateState, IUpdateParams> {
 					fields={[
 						{
 							icon: faImage,
-							name: "image",
-							placeholder: strings("createImage"),
+							name: "images",
+							placeholder: strings("createImages"),
 							type: "image"
 						},
+						{
+							icon: faTags,
+							items: options.category,
+							name: "category",
+							placeholder: strings("createCategory"),
+							type: "tags"
+						},
+
+						// "createCoordinates": "GPS souřadnice",
+
 						{
 							icon: faPencilAlt,
 							name: "name",
@@ -101,85 +90,14 @@ class Update extends Route.Content<IUpdateProps, IUpdateState, IUpdateParams> {
 							type: "text"
 						},
 						{
-							icon: faPencilAlt,
-							name: "subname",
-							placeholder: strings("createSubname"),
+							icon: faCity,
+							name: "city",
+							placeholder: strings("createCity"),
 							type: "text"
 						},
 						{
-							icon: faIndustry,
-							name: "manufacturer",
-							placeholder: strings("createManufacturer"),
-							predefined: predefined.manufacturer,
-							type: "text"
-						},
-						{
-							icon: faWineBottle,
-							name: "volume",
-							placeholder: strings("createVolume"),
-							type: "number"
-						},
-						{
-							icon: faPercentage,
-							name: "alcohol",
-							placeholder: strings("createAlcohol"),
-							type: "number",
-							unit: "%"
-						},
-						{
-							icon: faPalette,
-							items: options.properties.color,
-							name: "color",
-							placeholder: strings("createColor"),
-							type: "tags"
-						},
-						{
-							icon: faFlask,
-							items: options.properties.aroma,
-							name: "aroma",
-							placeholder: strings("createAroma"),
-							type: "tags"
-						},
-						{
-							icon: faGlassCheers,
-							items: options.properties.taste,
-							name: "taste",
-							placeholder: strings("createTaste"),
-							type: "tags"
-						},
-						{
-							icon: faBox,
-							items: options.cask,
-							name: "cask",
-							placeholder: strings("createCask"),
-							type: "tags"
-						},
-						{
-							icon: faEuroSign,
-							name: "price",
-							placeholder: strings("createPrice"),
-							type: "number",
-							unit: "Kč"
-						},
-						{
-							icon: [faLongArrowAltDown, faLongArrowAltUp],
-							name: "ripening",
-							placeholder: [strings("createRipeningLowest"), strings("createRipeningHighest")],
-							type: "range"
-						},
-						{
-							icon: faGlobeAmericas,
-							items: Object.entries(country).map((entry) => ({
-								label: entry[1].name,
-								value: entry[0]
-							})),
-							name: "origin",
-							placeholder: strings("createOrigin"),
-							type: "picker"
-						},
-						{
-							name: "purchased",
-							placeholder: strings("createPurchased"),
+							name: "visited",
+							placeholder: strings("createVisited"),
 							type: "date"
 						},
 						{
@@ -194,13 +112,6 @@ class Update extends Route.Content<IUpdateProps, IUpdateState, IUpdateParams> {
 							name: "notes",
 							placeholder: strings("createNotes"),
 							type: "multiline"
-						},
-						{
-							icon: faGlassWhiskey,
-							name: "drunk",
-							placeholder: strings("createDrunk"),
-							type: "number",
-							unit: "ml"
 						},
 						{
 							name: "id",
@@ -246,11 +157,12 @@ class Update extends Route.Content<IUpdateProps, IUpdateState, IUpdateParams> {
 			ToastAndroid.show(strings("updateSaveDone"), ToastAndroid.LONG);
 		};
 		// aktualizace
-		if (changes.includes("image")) {
-			assets.create(update.image, record.id).then((path) => {
-				update.image = path;
+		if (changes.includes("images")) {
+			// TODO - dodelat editaci obrazku
+			/* assets.create(update.images, record.id).then((path) => {
+				update.images = path;
 				saveHelper();
-			});
+			});*/
 		} else {
 			saveHelper();
 		}
@@ -259,6 +171,5 @@ class Update extends Route.Content<IUpdateProps, IUpdateState, IUpdateParams> {
 
 export default connect((store: IReduxStore, props: IUpdateProps & RouteComponentProps<IUpdateParams>) => ({
 	options: store.options.values,
-	predefined: store.collection.predefined,
 	record: store.collection.records.find((col) => col.id === props.match.params.id)
 }))(Update);

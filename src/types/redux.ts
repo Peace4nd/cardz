@@ -10,12 +10,10 @@ import { IDataCollection, IDataCollectionCompleteness, IDataOptions } from "./da
 export type IReduxType =
 	| "google-resolved"
 	| "google-token"
-	| "collection-bottle"
 	| "collection-load"
 	| "collection-push"
 	| "collection-update"
 	| "collection-remove"
-	| "collection-predefined"
 	| "collection-completeness"
 	| "options-load"
 	| "options-update"
@@ -89,16 +87,6 @@ export interface IReduxBackup {
  * Kolekce
  */
 export interface IReduxCollection extends IDataWrapperArray<IDataCollection> {
-	/**
-	 * Preddefinovane hodnoty
-	 */
-	predefined: {
-		/**
-		 * Vyrobce
-		 */
-		manufacturer: Array<IDataCollection["manufacturer"]>;
-	};
-
 	/**
 	 * Dokoncenost zaznamu
 	 */

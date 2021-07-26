@@ -1,21 +1,4 @@
-import {
-	faBox,
-	faCheck,
-	faComments,
-	faEuroSign,
-	faFlask,
-	faGlassCheers,
-	faGlobeAmericas,
-	faImage,
-	faIndustry,
-	faLongArrowAltDown,
-	faLongArrowAltUp,
-	faPalette,
-	faPencilAlt,
-	faPercentage,
-	faSmile,
-	faWineBottle
-} from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCity, faComments, faImage, faPencilAlt, faSmile, faTags } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { Keyboard, ToastAndroid } from "react-native";
 import { connect } from "react-redux";
@@ -23,9 +6,8 @@ import { v4 as uuidv4 } from "uuid";
 import { Form, Route } from "../../components";
 import { pushRecord } from "../../redux/actions/collection";
 import { IDataCollection, IDataOptions } from "../../types/data";
-import { IReduxCollection, IReduxDispatch, IReduxStore } from "../../types/redux";
+import { IReduxDispatch, IReduxStore } from "../../types/redux";
 import assets from "../../utils/assets";
-import country from "../../utils/country";
 import strings from "../../utils/strings";
 
 interface ICreateState {
@@ -35,7 +17,6 @@ interface ICreateState {
 
 interface ICreateProps extends IReduxDispatch {
 	options: IDataOptions;
-	predefined: IReduxCollection["predefined"];
 }
 
 /**
@@ -57,7 +38,7 @@ class Create extends Route.Content<ICreateProps, ICreateState> {
 	 */
 	public render(): JSX.Element {
 		// rozlozeni props
-		const { options, predefined } = this.props;
+		const { options } = this.props;
 		// sestaveni a vraceni
 		return (
 			<Route.Wrapper
@@ -80,10 +61,20 @@ class Create extends Route.Content<ICreateProps, ICreateState> {
 					fields={[
 						{
 							icon: faImage,
-							name: "image",
-							placeholder: strings("createImage"),
+							name: "images",
+							placeholder: strings("createImages"),
 							type: "image"
 						},
+						{
+							icon: faTags,
+							items: options.category,
+							name: "category",
+							placeholder: strings("createCategory"),
+							type: "tags"
+						},
+
+						// "createCoordinates": "GPS souřadnice",
+
 						{
 							icon: faPencilAlt,
 							name: "name",
@@ -91,85 +82,14 @@ class Create extends Route.Content<ICreateProps, ICreateState> {
 							type: "text"
 						},
 						{
-							icon: faPencilAlt,
-							name: "subname",
-							placeholder: strings("createSubname"),
+							icon: faCity,
+							name: "city",
+							placeholder: strings("createCity"),
 							type: "text"
 						},
 						{
-							icon: faIndustry,
-							name: "manufacturer",
-							placeholder: strings("createManufacturer"),
-							predefined: predefined.manufacturer,
-							type: "text"
-						},
-						{
-							icon: faWineBottle,
-							name: "volume",
-							placeholder: strings("createVolume"),
-							type: "number"
-						},
-						{
-							icon: faPercentage,
-							name: "alcohol",
-							placeholder: strings("createAlcohol"),
-							type: "number",
-							unit: "%"
-						},
-						{
-							icon: faPalette,
-							items: options.properties.color,
-							name: "color",
-							placeholder: strings("createColor"),
-							type: "tags"
-						},
-						{
-							icon: faFlask,
-							items: options.properties.aroma,
-							name: "aroma",
-							placeholder: strings("createAroma"),
-							type: "tags"
-						},
-						{
-							icon: faGlassCheers,
-							items: options.properties.taste,
-							name: "taste",
-							placeholder: strings("createTaste"),
-							type: "tags"
-						},
-						{
-							icon: faBox,
-							items: options.cask,
-							name: "cask",
-							placeholder: strings("createCask"),
-							type: "tags"
-						},
-						{
-							icon: faEuroSign,
-							name: "price",
-							placeholder: strings("createPrice"),
-							type: "number",
-							unit: "Kč"
-						},
-						{
-							icon: [faLongArrowAltDown, faLongArrowAltUp],
-							name: "ripening",
-							placeholder: [strings("createRipeningLowest"), strings("createRipeningHighest")],
-							type: "range"
-						},
-						{
-							icon: faGlobeAmericas,
-							items: Object.entries(country).map((entry) => ({
-								label: entry[1].name,
-								value: entry[0]
-							})),
-							name: "origin",
-							placeholder: strings("createOrigin"),
-							type: "picker"
-						},
-						{
-							name: "purchased",
-							placeholder: strings("createPurchased"),
+							name: "visited",
+							placeholder: strings("createVisited"),
 							type: "date"
 						},
 						{
@@ -189,11 +109,6 @@ class Create extends Route.Content<ICreateProps, ICreateState> {
 							name: "id",
 							type: "hidden",
 							value: uuidv4()
-						},
-						{
-							name: "drunk",
-							type: "hidden",
-							value: 0
 						}
 					]}
 					onChange={(values) => {
@@ -213,15 +128,15 @@ class Create extends Route.Content<ICreateProps, ICreateState> {
 		// schovani klavesnice
 		Keyboard.dismiss();
 		// rozlozeni props
-		const { id, image, ...rest } = this.state.record;
+		const { id, images, ...rest } = this.state.record;
 		// ulozeni
-		assets.create(image, id).then((path) => {
+		assets.create(images[0], id).then((path) => {
 			// redux
 			this.props.dispatch(
 				pushRecord({
 					...rest,
 					id,
-					image: path
+					images: [path]
 				})
 			);
 			// presmerovani
@@ -233,6 +148,5 @@ class Create extends Route.Content<ICreateProps, ICreateState> {
 }
 
 export default connect((store: IReduxStore) => ({
-	options: store.options.values,
-	predefined: store.collection.predefined
+	options: store.options.values
 }))(Create);

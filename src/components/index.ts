@@ -2,7 +2,6 @@ export { default as Button } from "./button";
 export { default as ButtonGroup } from "./button-group";
 export { default as Collection } from "./collection";
 export { default as ContextMenu } from "./context-menu";
-export { default as CountryFlag } from "./country-flag";
 export { default as Dialog } from "./dialog";
 export { default as Dropdown } from "./dropdown";
 export { default as Form } from "./form";

@@ -8,29 +8,8 @@ export const DEFAULT_STATE: IReduxOptions = {
 	changed: new Date(),
 	init: false,
 	values: {
-		cask: [],
-		dram: 40,
-		mandatory: [
-			"alcohol",
-			"aroma",
-			"cask",
-			"color",
-			"image",
-			"manufacturer",
-			"name",
-			"origin",
-			"price",
-			"purchased",
-			"rating",
-			"ripening",
-			"taste",
-			"volume"
-		],
-		properties: {
-			aroma: [],
-			color: [],
-			taste: []
-		}
+		category: [],
+		mandatory: ["name", "images", "visited", "category"]
 	}
 };
 

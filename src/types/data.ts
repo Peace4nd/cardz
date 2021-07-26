@@ -8,49 +8,39 @@ export interface IDataCollection {
 	id: string;
 
 	/**
-	 * Nazev
+	 * Nazev zajimavosti
 	 */
 	name: string;
 
 	/**
-	 * Doplnujici nazev
+	 * Obec kde se zajimavost nachazi
 	 */
-	subname: string;
+	city: string;
 
 	/**
-	 * Datum zakoupeni
+	 * GPS souradnice
 	 */
-	purchased: string;
+	coordinates: {
+		/**
+		 * Zemepisna sirky
+		 */
+		lat: string;
+
+		/**
+		 * Zemepisna delka
+		 */
+		long: string;
+	};
 
 	/**
 	 * Obrazky
 	 */
-	image: string;
+	images: string[];
 
 	/**
-	 * Zeme puvodu (ISO kod zeme)
+	 * Navstiveno
 	 */
-	origin: string;
-
-	/**
-	 * Vyrobce
-	 */
-	manufacturer: string;
-
-	/**
-	 * Objem alkoholu (v %)
-	 */
-	alcohol: number;
-
-	/**
-	 * Cena (v Kc)
-	 */
-	price: number;
-
-	/**
-	 * Objem lahve (v ml)
-	 */
-	volume: number;
+	visited: string;
 
 	/**
 	 * Poznamky
@@ -63,49 +53,9 @@ export interface IDataCollection {
 	rating: number;
 
 	/**
-	 * Delka zrani
+	 * Kategorie (hrad, zamek, jeskyne, ...)
 	 */
-	ripening: [
-		/**
-		 * Nejnizsi delka zrani
-		 */
-		lowest: number,
-
-		/**
-		 * Nejvyssi delka zrani
-		 */
-		highest: number
-	];
-
-	/**
-	 * Zrani v sudu
-	 */
-	cask: string[];
-
-	/**
-	 * Barva (zlata, hneda, tmava zlata, ...)
-	 */
-	color: string[];
-
-	/**
-	 * Cichove vlastnosti (tony kavy, vanilky, ...)
-	 */
-	aroma: string[];
-
-	/**
-	 * Chutove vlastnosti (pomerance, vanilka, ...)
-	 */
-	taste: string[];
-
-	/**
-	 * Vypite mnozsti
-	 */
-	drunk: number;
-
-	/**
-	 * Pocet lahvi
-	 */
-	bottle: number;
+	category: string[];
 }
 
 /**
@@ -118,42 +68,12 @@ export type IDataCollectionCompleteness = Record<string, boolean>;
  */
 export interface IDataOptions {
 	/**
-	 * Objen jednoho panaku
+	 * Kategorie zajimavosti
 	 */
-	dram: number;
-
-	/**
-	 * Senzoricke vlastnosti
-	 */
-	properties: {
-		/**
-		 * Barva
-		 */
-		color: string[];
-
-		/**
-		 * Cichove vlastnosti
-		 */
-		aroma: string[];
-
-		/**
-		 * Chutove vlastnosti
-		 */
-		taste: string[];
-	};
-
-	/**
-	 * Typ sudu
-	 */
-	cask: string[];
+	category: string[];
 
 	/**
 	 * Mandatorni polozky kolekce
 	 */
 	mandatory: string[];
 }
-
-/**
- * Dostupne senzoricke vlastnosti
- */
-export type IDataOptionsProperties = keyof IDataOptions["properties"];

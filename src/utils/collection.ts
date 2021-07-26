@@ -1,6 +1,5 @@
 import { IDataCollection } from "../types/data";
 import { ILocaleStrings } from "../types/locale";
-import country from "./country";
 import format from "./format";
 import strings from "./strings";
 
@@ -25,13 +24,6 @@ export function stringify(record: IDataCollection): string {
 	output += makeLine("createCask", format.array(record.cask).value);
 	output += makeLine("createPrice", format.number(record.price, "Kč").value);
 	output += makeLine("createRipening", format.range(record.ripening, strings("overviewRipeningYears")).value);
-	output += makeLine(
-		"createOrigin",
-		format.item(
-			record.origin,
-			Object.entries(country).map((entry) => ({ label: entry[1].name, value: entry[0] }))
-		).value
-	);
 	output += makeLine("createPurchased", format.date(record.purchased).value);
 	output += makeLine("createRating", format.rating(record.rating).value);
 	output += makeLine("createNotes", format.string(record.notes).value);

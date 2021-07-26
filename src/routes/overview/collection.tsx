@@ -6,7 +6,7 @@ import { Collection, Grid, Icon, Route, Typography } from "../../components";
 import { loadRecords } from "../../redux/actions/collection";
 import { signResolved } from "../../redux/actions/google";
 import { loadOptions } from "../../redux/actions/options";
-import { IDataCollection, IDataCollectionCompleteness, IDataOptions } from "../../types/data";
+import { IDataCollection, IDataCollectionCompleteness } from "../../types/data";
 import { IReduxDispatch, IReduxGoogle, IReduxStore } from "../../types/redux";
 import { IStorageSections } from "../../types/storage";
 import ga from "../../utils/google";
@@ -14,10 +14,10 @@ import storage from "../../utils/storage";
 import strings from "../../utils/strings";
 
 interface IOverviewCollectionProps extends IReduxDispatch {
+	changed: Date;
 	completeness: IDataCollectionCompleteness;
 	collection: IDataCollection[];
 	google: IReduxGoogle;
-	options: IDataOptions;
 	init: boolean;
 }
 
@@ -72,7 +72,14 @@ class OverviewCollection extends Route.Content<IOverviewCollectionProps> {
 					menu: {
 						enabled: true
 					},
-					search: true
+					search: {
+						callback: (text) => {
+							const res = this.props.collection.filter((record) => record.name.toLowerCase().includes(text.toLowerCase().trim()));
+
+							console.log(res);
+						},
+						enabled: true
+					}
 				}}
 				scrollable={true}
 			>
@@ -89,7 +96,7 @@ class OverviewCollection extends Route.Content<IOverviewCollectionProps> {
 	 */
 	private renderRecords(): JSX.Element | JSX.Element[] {
 		// rozlozeni props
-		const { collection, completeness, options } = this.props;
+		const { changed, collection, completeness } = this.props;
 		// pokud nexistuje zaznam
 		if (collection.length === 0) {
 			return (
@@ -102,15 +109,13 @@ class OverviewCollection extends Route.Content<IOverviewCollectionProps> {
 			);
 		}
 		// sestaveni kolekce
-		return collection
-			.sort((a, b) => a.drunk - b.drunk)
-			.map((record) => (
-				<Grid.Row key={record.id}>
-					<Grid.Column>
-						<Collection record={record} dram={options.dram} complete={completeness[record.id]} onPress={this.handleDetail} />
-					</Grid.Column>
-				</Grid.Row>
-			));
+		return collection.map((record) => (
+			<Grid.Row key={record.id}>
+				<Grid.Column>
+					<Collection record={record} busting={changed} complete={completeness[record.id]} onPress={this.handleDetail} />
+				</Grid.Column>
+			</Grid.Row>
+		));
 	}
 
 	/**
@@ -124,9 +129,9 @@ class OverviewCollection extends Route.Content<IOverviewCollectionProps> {
 }
 
 export default connect((store: IReduxStore) => ({
+	changed: store.collection.changed,
 	collection: store.collection.records,
 	completeness: store.collection.completeness,
 	google: store.google,
-	init: store.collection.init && store.options.init,
-	options: store.options.values
+	init: store.collection.init && store.options.init
 }))(OverviewCollection);

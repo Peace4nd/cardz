@@ -1,8 +1,8 @@
 import { faArrowLeft, faCartPlus, faEllipsisV, faListUl, faSearch } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { Animated, SafeAreaView, ScrollView, StatusBar, View } from "react-native";
-import { Typography } from "../..";
-import { Color } from "../../../styles";
+import { Input } from "../..";
+import { Color, Size } from "../../../styles";
 import strings from "../../../utils/strings";
 import Header, { IHeaderAction, IHeaderActionMenuItem } from "../../header";
 import Loading from "../../loading";
@@ -40,7 +40,17 @@ export interface IRoute {
 		/**
 		 * Vyhledavani
 		 */
-		search?: boolean;
+		search?: {
+			/**
+			 * Povoleno
+			 */
+			enabled: boolean;
+
+			/**
+			 * Callback
+			 */
+			callback: (text: string) => void;
+		};
 
 		/**
 		 * Menu
@@ -90,7 +100,10 @@ export default class Route extends React.PureComponent<IRoute, IRouteState> {
 				enabled: false,
 				items: []
 			},
-			search: false
+			search: {
+				callback: null,
+				enabled: false
+			}
 		},
 		scrollable: false,
 		subtitle: null,
@@ -102,7 +115,7 @@ export default class Route extends React.PureComponent<IRoute, IRouteState> {
 	 */
 	public state: IRouteState = {
 		searchActive: false,
-		searchText: null
+		searchText: ""
 	};
 
 	/**
@@ -118,6 +131,7 @@ export default class Route extends React.PureComponent<IRoute, IRouteState> {
 	public render(): JSX.Element {
 		// rozlozeni props
 		const { features, subtitle, title } = this.props;
+		const { searchText } = this.state;
 		// definice
 		const preparedActions: IHeaderAction[] = [];
 		// doplnkove akce
@@ -125,7 +139,7 @@ export default class Route extends React.PureComponent<IRoute, IRouteState> {
 			preparedActions.push(...features.actions);
 		}
 		// vyhledavani
-		if (features.search) {
+		if (features.search?.enabled) {
 			preparedActions.push({
 				icon: faSearch,
 				onPress: this.handleSearchToggle,
@@ -186,8 +200,31 @@ export default class Route extends React.PureComponent<IRoute, IRouteState> {
 							}
 						]}
 					/>
-					<Animated.View pointerEvents="none" style={[styles.searchWrapper, { opacity: this.toggle }]}>
-						<Typography>hledani</Typography>
+					<Animated.View
+						style={[
+							styles.searchWrapper,
+							{
+								opacity: this.toggle,
+								transform: [
+									{
+										translateY: this.toggle.interpolate({
+											inputRange: [0, 1],
+											outputRange: [-2 * Size["8x"], 0]
+										})
+									}
+								]
+							}
+						]}
+					>
+						<Input.Text
+							value={searchText}
+							returnKey="search"
+							onChange={(value) => this.setState({ searchText: value })}
+							onSubmit={{
+								handler: this.handleSearchCallback,
+								reset: true
+							}}
+						/>
 					</Animated.View>
 				</SafeAreaView>
 			</React.Fragment>
@@ -214,12 +251,12 @@ export default class Route extends React.PureComponent<IRoute, IRouteState> {
 		if (scrollable) {
 			return (
 				<ScrollView keyboardDismissMode="on-drag" style={styles.contentWrapper} contentContainerStyle={styles.contentPadding}>
-					{busy ? <Loading /> : children}
+					{children}
 				</ScrollView>
 			);
 		}
 		// standardni view
-		return <View style={[styles.contentWrapper, styles.contentPadding]}>{busy ? <Loading /> : children}</View>;
+		return <View style={[styles.contentWrapper, styles.contentPadding]}>{children}</View>;
 	}
 
 	/**
@@ -229,7 +266,7 @@ export default class Route extends React.PureComponent<IRoute, IRouteState> {
 		this.setState(
 			{
 				searchActive: !this.state.searchActive,
-				searchText: null
+				searchText: ""
 			},
 			() => {
 				if (this.state.searchActive) {
@@ -245,6 +282,23 @@ export default class Route extends React.PureComponent<IRoute, IRouteState> {
 						useNativeDriver: true
 					}).start();
 				}
+			}
+		);
+	};
+
+	private handleSearchCallback = (): void => {
+		this.setState(
+			{
+				searchActive: !this.state.searchActive
+			},
+			() => {
+				Animated.timing(this.toggle, {
+					duration: 500,
+					toValue: 0,
+					useNativeDriver: true
+				}).start(() => {
+					this.props.features.search.callback(this.state.searchText);
+				});
 			}
 		);
 	};

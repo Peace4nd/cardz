@@ -70,7 +70,7 @@ export default class InputImage extends React.PureComponent<IInputImage, IInputI
 						)}
 					</View>
 				)}
-				{path && <Image source={path} style={styles.image} bare={true} />}
+				{path && <Image source={[path]} style={styles.image} />}
 			</Pressable>
 		);
 	}

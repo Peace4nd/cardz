@@ -18,8 +18,9 @@ export default function strings(key: ILocaleStrings, ...params: unknown[]): stri
 	// regularni vyrazy
 	const rGlobal = /\{[^{]+\}/i;
 	const rParam = /\{\s*([0-9]+)(\s*\|\s*([a-z]+))?\s*\}/gi;
+	const tKey: string = data[key] ?? key;
 	// nahrazeni parametru
-	return data[key].replace(rGlobal, (param): string => {
+	return tKey.replace(rGlobal, (param): string => {
 		// definice
 		const parts = rParam.exec(param);
 		const index = parseInt(parts[1], 10);

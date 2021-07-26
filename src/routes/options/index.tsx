@@ -1,5 +1,5 @@
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
-import { faBox, faFlask, faGlassCheers, faGlassWhiskey, faListUl, faPalette } from "@fortawesome/free-solid-svg-icons";
+import { faBox, faListUl } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { Image, StyleSheet } from "react-native";
 import { connect } from "react-redux";
@@ -8,7 +8,7 @@ import { loadBackup } from "../../redux/actions/backup";
 import { loadRecords } from "../../redux/actions/collection";
 import { signResolved } from "../../redux/actions/google";
 import { loadOptions, updateOptions } from "../../redux/actions/options";
-import { IDataCollection, IDataOptions, IDataOptionsProperties } from "../../types/data";
+import { IDataCollection, IDataOptions } from "../../types/data";
 import { IReduxBackup, IReduxDispatch, IReduxGoogle, IReduxStore } from "../../types/redux";
 import assets from "../../utils/assets";
 import ga, { IGoogleDriveFile } from "../../utils/google";
@@ -16,8 +16,7 @@ import storage, { DATABASE } from "../../utils/storage";
 import strings from "../../utils/strings";
 
 interface IOptionsState {
-	properties: Record<IDataOptionsProperties, string>;
-	cask: string;
+	category: string;
 	backupWorking: boolean;
 	backupDownload: boolean;
 	backupUpload: boolean;
@@ -51,12 +50,7 @@ class Options extends Route.Content<IOptionsProps, IOptionsState> {
 		backupDownload: false,
 		backupUpload: false,
 		backupWorking: false,
-		cask: null,
-		properties: {
-			aroma: null,
-			color: null,
-			taste: null
-		}
+		category: null
 	};
 
 	/**
@@ -90,12 +84,8 @@ class Options extends Route.Content<IOptionsProps, IOptionsState> {
 				{this.renderGoogleSignin()}
 				{/* google drive */}
 				{this.renderGoogleDrive()}
-				{/* velikost panaku */}
-				{this.renderDram()}
-				{/* senzoricke tvlastnosti */}
-				{this.renderProperties()}
-				{/* typ sudu */}
-				{this.renderCask()}
+				{/* kategorie */}
+				{this.renderCategory()}
 				{/* povinne polozky kolekce */}
 				{this.renderRequiredCollection()}
 			</Route.Wrapper>
@@ -111,23 +101,15 @@ class Options extends Route.Content<IOptionsProps, IOptionsState> {
 		// rozlozeni props
 		const { options } = this.props;
 		// definice
-		const available: Required<Record<Exclude<keyof IDataCollection, "id" | "drunk">, string>> = {
-			alcohol: strings("createAlcohol"),
-			aroma: strings("createAroma"),
-			cask: strings("createCask"),
-			color: strings("createColor"),
-			image: strings("createImage"),
-			manufacturer: strings("createManufacturer"),
+		const available: Required<Record<Exclude<keyof IDataCollection, "id">, string>> = {
+			category: strings("createCategory"),
+			city: strings("createCity"),
+			coordinates: strings("createCoordinates"),
+			images: strings("createImages"),
 			name: strings("createName"),
 			notes: strings("createNotes"),
-			origin: strings("createOrigin"),
-			price: strings("createPrice"),
-			purchased: strings("createPurchased"),
 			rating: strings("createRating"),
-			ripening: strings("createRipening"),
-			subname: strings("createSubname"),
-			taste: strings("createTaste"),
-			volume: strings("createVolume")
+			visited: strings("createVisited")
 		};
 		// sestaveni
 		return (
@@ -283,133 +265,33 @@ class Options extends Route.Content<IOptionsProps, IOptionsState> {
 	}
 
 	/**
-	 * Panak
+	 * Kategorie
 	 *
 	 * @returns {JSX.Element} Element
 	 */
-	private renderDram(): JSX.Element {
+	private renderCategory(): JSX.Element {
 		// rozlozeni props
 		const { options } = this.props;
 		// sestaveni a vraceni
 		return (
 			<Grid.Wrapper>
-				<Grid.Title>{strings("optionsDramTitle")}</Grid.Title>
-				<Grid.Row>
-					<Grid.Column>
-						<Input.Number icon={faGlassWhiskey} placeholder="dram" value={options.dram} unit="ml" onChange={this.handleDram} />
-					</Grid.Column>
-				</Grid.Row>
-			</Grid.Wrapper>
-		);
-	}
-
-	/**
-	 * Senzoricke vlastnosti
-	 *
-	 * @returns {JSX.Element} Element
-	 */
-	private renderProperties(): JSX.Element {
-		// rozlozeni props
-		const { options } = this.props;
-		// sestaveni a vraceni
-		return (
-			<Grid.Wrapper>
-				<Grid.Title>{strings("optionsPropertiesTitle")}</Grid.Title>
-				{/* barva */}
-				<Grid.Row>
-					<Grid.Column>
-						<Input.Text
-							icon={faPalette}
-							placeholder={strings("createColor")}
-							onChange={this.handlePropertiesChange.bind(this, "color")}
-							onSubmit={{
-								blur: false,
-								handler: this.handlePropertiesAdd.bind(this, "color"),
-								reset: true
-							}}
-						/>
-						{options.properties.color.length > 0 && (
-							<React.Fragment>
-								<Spacer />
-								<Tags items={options.properties.color} onDelete={this.handlePropertiesRemove.bind(this, "color")} />
-							</React.Fragment>
-						)}
-					</Grid.Column>
-				</Grid.Row>
-				{/* cich */}
-				<Grid.Row>
-					<Grid.Column>
-						<Input.Text
-							icon={faFlask}
-							placeholder={strings("createAroma")}
-							onChange={this.handlePropertiesChange.bind(this, "aroma")}
-							onSubmit={{
-								blur: false,
-								handler: this.handlePropertiesAdd.bind(this, "aroma"),
-								reset: true
-							}}
-						/>
-						{options.properties.aroma.length > 0 && (
-							<React.Fragment>
-								<Spacer />
-								<Tags items={options.properties.aroma} onDelete={this.handlePropertiesRemove.bind(this, "aroma")} />
-							</React.Fragment>
-						)}
-					</Grid.Column>
-				</Grid.Row>
-				{/* chut */}
-				<Grid.Row>
-					<Grid.Column>
-						<Input.Text
-							icon={faGlassCheers}
-							placeholder={strings("createTaste")}
-							onChange={this.handlePropertiesChange.bind(this, "taste")}
-							onSubmit={{
-								blur: false,
-								handler: this.handlePropertiesAdd.bind(this, "taste"),
-								reset: true
-							}}
-						/>
-						{options.properties.taste.length > 0 && (
-							<React.Fragment>
-								<Spacer />
-								<Tags items={options.properties.taste} onDelete={this.handlePropertiesRemove.bind(this, "taste")} />
-							</React.Fragment>
-						)}
-					</Grid.Column>
-				</Grid.Row>
-			</Grid.Wrapper>
-		);
-	}
-
-	/**
-	 * Typ sudu
-	 *
-	 * @returns {JSX.Element} Element
-	 */
-	private renderCask(): JSX.Element {
-		// rozlozeni props
-		const { options } = this.props;
-		// sestaveni a vraceni
-		return (
-			<Grid.Wrapper>
-				<Grid.Title>{strings("optionsCaskTitle")}</Grid.Title>
+				<Grid.Title>{strings("optionsCategoryTitle")}</Grid.Title>
 				<Grid.Row>
 					<Grid.Column>
 						<Input.Text
 							icon={faBox}
-							onChange={this.handleCaskChange}
+							onChange={this.handleCategoryChange}
 							onSubmit={{
 								blur: false,
-								handler: this.handleCaskAdd,
+								handler: this.handleCategoryAdd,
 								reset: true
 							}}
-							placeholder={strings("optionsCaskTitle")}
+							placeholder={strings("optionsCategoryTitle")}
 						/>
-						{options.cask.length > 0 && (
+						{options.category.length > 0 && (
 							<React.Fragment>
 								<Spacer />
-								<Tags items={options.cask} onDelete={this.handleCaskRemove} />
+								<Tags items={options.category} onDelete={this.handleCategoryRemove} />
 							</React.Fragment>
 						)}
 					</Grid.Column>
@@ -460,7 +342,9 @@ class Options extends Route.Content<IOptionsProps, IOptionsState> {
 		const database = await this.processDownloadDatabase(backup.files);
 		// stazeni assetu
 		for (const record of database.collection.records) {
-			await this.processDownloadAsset(record.image, backup.files);
+			for (const image of record.images) {
+				await this.processDownloadAsset(image, backup.files);
+			}
 		}
 		// vraceni databaze
 		return database;
@@ -527,7 +411,9 @@ class Options extends Route.Content<IOptionsProps, IOptionsState> {
 		// zpracovani assetu
 		if (collection.length > 0) {
 			for (const record of collection) {
-				await this.processUploadAsset(record.image, backup.files);
+				for (const image of record.images) {
+					await this.processUploadAsset(image, backup.files);
+				}
 			}
 		}
 		// zpracovani databaze
@@ -584,90 +470,23 @@ class Options extends Route.Content<IOptionsProps, IOptionsState> {
 	};
 
 	/**
-	 * Zmena objemu frtanu
-	 *
-	 * @param {number} value Objem
-	 */
-	private handleDram = (value: number): void => {
-		this.props.dispatch(
-			updateOptions({
-				dram: value
-			})
-		);
-	};
-
-	/**
-	 * Zadani lastnosti
-	 *
-	 * @param {IDataOptionsProperties} section Sekce
-	 * @param {string} value Text
-	 */
-	private handlePropertiesChange(section: IDataOptionsProperties, value: string): void {
-		this.setState({
-			properties: {
-				...this.state.properties,
-				[section]: value
-			}
-		});
-	}
-
-	/**
-	 * Pridani vlastnosti do databaze
-	 *
-	 * @param {IDataOptionsProperties} section Sekce
-	 */
-	private handlePropertiesAdd(section: IDataOptionsProperties): void {
-		this.props.dispatch(
-			updateOptions({
-				properties: {
-					[section]: [this.state.properties[section]]
-				}
-			})
-		);
-	}
-
-	/**
-	 * Odebrani vlastnosti z databaze
-	 *
-	 * @param {IDataOptionsProperties} section Sekce
-	 * @param {string} value Text
-	 */
-	private handlePropertiesRemove(section: IDataOptionsProperties, value: string): void {
-		// odstraneni tagu
-		const current = this.props.options.properties[section].slice(0);
-		const index = current.findIndex((item) => value === item);
-		current.splice(index, 1);
-		// dispatch
-		this.props.dispatch(
-			updateOptions(
-				{
-					properties: {
-						[section]: current
-					}
-				},
-				"replace"
-			)
-		);
-	}
-
-	/**
 	 * Zadani typu sudu
 	 *
 	 * @param {string} value Text
 	 */
-	private handleCaskChange = (value: string): void => {
+	private handleCategoryChange = (value: string): void => {
 		this.setState({
-			cask: value
+			category: value
 		});
 	};
 
 	/**
 	 * Pridani sudu do databaze
 	 */
-	private handleCaskAdd = (): void => {
+	private handleCategoryAdd = (): void => {
 		this.props.dispatch(
 			updateOptions({
-				cask: [this.state.cask]
+				category: [this.state.category]
 			})
 		);
 	};
@@ -677,16 +496,16 @@ class Options extends Route.Content<IOptionsProps, IOptionsState> {
 	 *
 	 * @param {string} value Text
 	 */
-	private handleCaskRemove = (value: string): void => {
+	private handleCategoryRemove = (value: string): void => {
 		// odstraneni tagu
-		const current = this.props.options.cask.slice(0);
+		const current = this.props.options.category.slice(0);
 		const index = current.findIndex((item) => value === item);
 		current.splice(index, 1);
 		// dispatch
 		this.props.dispatch(
 			updateOptions(
 				{
-					cask: current
+					category: current
 				},
 				"replace"
 			)

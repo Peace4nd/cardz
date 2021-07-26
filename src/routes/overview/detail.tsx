@@ -1,37 +1,18 @@
 import { faGlassWhiskey, faPencilAlt, faShareAlt, faTrash, faWineBottle } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
-import { Share, StyleSheet, View } from "react-native";
+import { Share } from "react-native";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router";
-import { ContextMenu, CountryFlag, Dialog, Grid, Image, Input, Rating, Route, Typography, Value } from "../../components";
+import { ContextMenu, Dialog, Grid, Image, Input, Rating, Route, Value } from "../../components";
 import { addBottle, removeRecord, updateRecord } from "../../redux/actions/collection";
-import { Color, Size } from "../../styles";
 import { IDataCollection, IDataCollectionCompleteness, IDataOptions } from "../../types/data";
 import { IReduxDispatch, IReduxStore } from "../../types/redux";
 import assets from "../../utils/assets";
 import { stringify } from "../../utils/collection";
 import confirm from "../../utils/confirm";
-import country from "../../utils/country";
 import format from "../../utils/format";
 import storage from "../../utils/storage";
 import strings from "../../utils/strings";
-
-const styles = StyleSheet.create({
-	originFlag: {
-		marginRight: Size["1x"]
-	},
-	originWrapper: {
-		alignItems: "center",
-		flexDirection: "row",
-		height: Size["3x"]
-	},
-	valueMissing: {
-		color: Color.Muted
-	},
-	valueMissingMandatory: {
-		color: Color.Base
-	}
-});
 
 interface IOverviewDetailState {
 	opened: boolean;
@@ -177,22 +158,6 @@ class OverviewDetail extends Route.Content<IOverviewDetailProps, IOverviewDetail
 									label={strings("createRipening")}
 									mandatory={options.mandatory.includes("ripening")}
 									formated={format.range(record.ripening, strings("overviewRipeningYears"))}
-								/>
-							</Grid.Column>
-						</Grid.Row>
-						{/* stat */}
-						<Grid.Row>
-							<Grid.Column>
-								<Value
-									label={strings("createOrigin")}
-									mandatory={options.mandatory.includes("origin")}
-									formated={format.string(record.origin)}
-									render={() => (
-										<View style={styles.originWrapper}>
-											<CountryFlag code={record.origin} style={styles.originFlag} />
-											<Typography type="Body1">{record.origin ? country[record.origin].name : null}</Typography>
-										</View>
-									)}
 								/>
 							</Grid.Column>
 						</Grid.Row>

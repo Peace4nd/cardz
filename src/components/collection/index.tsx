@@ -1,11 +1,10 @@
-import { faCheck, faGlassWhiskey, faTimes, faWineBottle } from "@fortawesome/free-solid-svg-icons";
+import { faCity, faTags } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
 import { Pressable, View } from "react-native";
-import { CountryFlag, Icon } from "..";
 import { IDataCollection } from "../../types/data";
-import format from "../../utils/format";
-import strings from "../../utils/strings";
+import Icon from "../icon";
 import Image from "../image";
+import Tags from "../tags";
 import Typography from "../typography";
 import styles from "./styles";
 
@@ -19,9 +18,9 @@ export interface ICollection {
 	record: IDataCollection;
 
 	/**
-	 * Velikost panaku
+	 * Cache busting
 	 */
-	dram: number;
+	busting?: Date;
 
 	/**
 	 * Kompleni zaznam
@@ -45,7 +44,6 @@ export default class Collection extends React.PureComponent<ICollection> {
 	 */
 	public static defaultProps: ICollection = {
 		complete: false,
-		dram: 0,
 		onPress: null,
 		record: null
 	};
@@ -57,48 +55,24 @@ export default class Collection extends React.PureComponent<ICollection> {
 	 */
 	public render(): JSX.Element {
 		// rozlozeni props
-		const { complete, dram, onPress, record } = this.props;
-		// priprava zrani
-		const ripening = format.range(record.ripening, strings("overviewRipeningYears"));
+		const { busting, onPress, record } = this.props;
 		// sestaveni a vraceni
 		return (
 			<Pressable style={({ pressed }) => [styles.wrapper, pressed ? styles.wrapperPressed : null]} onPress={() => onPress(record)}>
-				<Image source={record.image} grayscale={record.volume - record.drunk <= 0} bare={true} style={styles.image} />
-				<View style={styles.info}>
-					<Typography type="Headline6" style={styles.infoName} numberOfLines={1}>
-						{record.name}
-					</Typography>
-					{!!record.subname && (
-						<Typography type="Subtitle2" style={styles.infoSubname} numberOfLines={1}>
-							{record.subname}
-						</Typography>
-					)}
-					<Typography type="Body1" style={styles.infoManufacturer} numberOfLines={1}>
-						{record.manufacturer}
-					</Typography>
-					<View style={styles.infoAdditional}>
-						<CountryFlag code={record.origin} />
-						<View style={styles.infoRipening}>
-							<Typography type="Body2">{ripening.empty ? null : ripening.value}</Typography>
-						</View>
-					</View>
+				<Typography type="Headline6" style={styles.infoName} numberOfLines={1}>
+					{record.name}
+				</Typography>
+
+				<Image source={record.images} busting={busting} style={styles.image} />
+
+				<View>
+					<Icon definition={faCity} />
+					<Typography>{record.city}</Typography>
 				</View>
-				<View style={styles.status}>
-					<View style={styles.statusItem}>
-						<Icon definition={faGlassWhiskey} size="2x" style={styles.statusItemIcon} />
-						<Typography type="Body2" style={styles.statusItemValue}>
-							{Math.ceil((record.volume - record.drunk) / dram)}x
-						</Typography>
-					</View>
-					<View style={styles.statusItem}>
-						<Icon definition={faWineBottle} size="2x" style={styles.statusItemIcon} />
-						<Typography type="Body2" style={styles.statusItemValue}>
-							{record.bottle}x
-						</Typography>
-					</View>
-					<View style={styles.statusItem}>
-						<Icon definition={complete ? faCheck : faTimes} size="2x" style={styles.statusItemIcon} />
-					</View>
+
+				<View>
+					<Icon definition={faTags} />
+					<Tags items={record.category} />
 				</View>
 			</Pressable>
 		);

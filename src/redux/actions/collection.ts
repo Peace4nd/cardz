@@ -14,9 +14,6 @@ export function loadRecords(records: IDataCollection[]): IReduxThunk {
 			type: "collection-load"
 		});
 		dispatch({
-			type: "collection-predefined"
-		});
-		dispatch({
 			payload: getState().options.values,
 			type: "collection-completeness"
 		});
@@ -34,9 +31,6 @@ export function pushRecord(record: IDataCollection): IReduxThunk {
 		dispatch({
 			payload: record,
 			type: "collection-push"
-		});
-		dispatch({
-			type: "collection-predefined"
 		});
 		dispatch({
 			payload: getState().options.values,
@@ -62,9 +56,6 @@ export function updateRecord(id: string, record: Partial<IDataCollection>): IRed
 			type: "collection-update"
 		});
 		dispatch({
-			type: "collection-predefined"
-		});
-		dispatch({
 			payload: getState().options.values,
 			type: "collection-completeness"
 		});
@@ -84,26 +75,8 @@ export function removeRecord(id: string): IReduxThunk {
 			type: "collection-remove"
 		});
 		dispatch({
-			type: "collection-predefined"
-		});
-		dispatch({
 			payload: getState().options.values,
 			type: "collection-completeness"
-		});
-	};
-}
-
-/**
- * Pridani nove lahve
- *
- * @param {string} id  Identifikator
- * @returns {IReduxThunk} Akce
- */
-export function addBottle(id: string): IReduxThunk {
-	return (dispatch) => {
-		dispatch({
-			payload: id,
-			type: "collection-bottle"
 		});
 	};
 }
